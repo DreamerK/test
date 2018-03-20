@@ -1,0 +1,56 @@
+一、建立用户、目录
+
+useradd mysql
+mkdir -p /data/mysql/mysqltmp /data/mysql/binlog /data/mysql/relaylog /data/mysql/redolog /data/mysql/mysqllog /data/mysql/data /data/mysql/undolog /data/import
+
+
+二、解压、添加服务
+
+tar zxvf mysql-5.7.18-linux-glibc2.5-x86_64.tar.gz -C /usr/local/
+mv /usr/local/mysql-5.7.18-linux-glibc2.5-x86_64/ /usr/local/mysql
+cp -a /usr/local/mysql/support-files/mysql.server /etc/init.d/mysqld
+
+
+三、配置
+
+1、配置文件
+
+vi /etc/my.cnf
+(内容看my.cnf样本文件)
+
+
+2、修改目录权限
+
+chown -R mysql:mysql /usr/local/mysql /data/mysql /data/import
+
+3、初始化数据库
+
+/usr/local/mysql/bin/mysqld --defaults-file=/etc/my.cnf --initialize-insecure --user=mysql --basedir=/usr/local/mysql/ --datadir=/data/mysql/data/	#mysql5.7初始化
+#/usr/local/mysql/script/mysql_install_db --defaults-file=/etc/my.cnf  --user=mysql --basedir=/usr/local/mysql/ --datadir=/data/mysql/data/	#mysql5.6初始化
+
+4、修改环境变量
+
+vi .bash_profile 
+PATH=/usr/local/mysql/bin/:$PATH:$HOME/bin
+alias mysql='mysql --prompt="(\\u@\\h)\\_[\\d]>\\_"'
+
+source .bash_profile 
+
+5、启动mysql、修改root密码、设置开机启动
+
+/etc/init.d/mysqld start
+
+mysql -uroot
+mysql> grant all on *.* to root@'127.0.0.1' identified by 'root' WITH GRANT OPTION;
+mysql> quit
+
+mysql -uroot -h127.0.0.1 -p
+mysql> drop user root@'localhost';
+mysql> quit
+
+chkconfig mysqld on
+
+
+
+
+
